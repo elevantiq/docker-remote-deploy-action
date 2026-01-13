@@ -8,7 +8,7 @@ Below is a brief example on how the action can be used:
 
 ```yaml
 - name: Deploy to swarm
-  uses: sagebind/docker-swarm-deploy-action@v2
+  uses: elevantiq/docker-remote-deploy-action@master
   with:
     remote_host: ssh://user@myswarm.com
     ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
@@ -16,27 +16,34 @@ Below is a brief example on how the action can be used:
     args: stack deploy --compose-file stack.yaml coolapp
 ```
 
-If you are deploying any private Docker images, you can use the [Docker Login](https://github.com/marketplace/actions/docker-login) action to first log in to your private registry, and then provide the `--with-registry-auth` flag to `docker stack deploy` to use the logged in credentials during deployment.
+If you are deploying any private Docker images, you can use the built-in registry authentication:
+
+```yaml
+- name: Deploy to swarm
+  uses: elevantiq/docker-remote-deploy-action@master
+  with:
+    remote_host: ssh://user@myswarm.com
+    ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+    docker_registry: ghcr.io
+    docker_username: ${{ github.actor }}
+    docker_password: ${{ secrets.GITHUB_TOKEN }}
+    args: stack deploy --with-registry-auth --compose-file stack.yaml coolapp
+```
 
 ## Inputs
 
-Below are all of the supported inputs. Some inputs used to authenticate with your swarm should be kept private, and should be supplied as secrets for security.
-
-### `args`
-
-Arguments to pass to the `docker` command after connecting to the remote swarm.
-
-### `remote_host`
-
-Specifies how to connect to your swarm with a Docker host to connect to, using the same syntax as the Docker [`--host` command line flag](https://docs.docker.com/engine/reference/commandline/cli/). This must be a manager node in your swarm for most operations to work.
-
-### `ssh_public_key`
-
-When connecting to Docker over SSH, this must contain the SSH public key of the server for verification. Optional.
-
-### `ssh_private_key`
-
-When connecting to Docker over SSH, this must contain the SSH private key to use to connect. Optional.
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `args` | ✅ | - | Arguments to pass to the `docker` command |
+| `remote_host` | ✅ | - | Docker host to connect to (e.g., `ssh://user@host`) |
+| `ssh_private_key` | ❌ | - | SSH private key for authentication |
+| `ssh_public_key` | ❌ | - | SSH public key of the server for verification |
+| `docker_version` | ❌ | `28` | Docker CLI version (e.g., `28`, `27`, `latest`) |
+| `docker_registry` | ❌ | - | Container registry to log into (e.g., `ghcr.io`) |
+| `docker_username` | ❌ | - | Registry username |
+| `docker_password` | ❌ | - | Registry password |
+| `env` | ❌ | - | Environment variables to pass to docker command |
+| `run_number` | ❌ | - | GitHub run number passed to environment |
 
 ## License
 
