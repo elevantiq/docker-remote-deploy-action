@@ -1,4 +1,5 @@
-FROM docker:stable
+ARG DOCKER_VERSION=28
+FROM docker:${DOCKER_VERSION}
 
 LABEL "name"="Docker Swarm Deploy Action"
 LABEL "maintainer"="Stephen Coakley <me@stephencoakley.com>"
